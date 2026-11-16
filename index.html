@@ -3,23 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Portfolio</title>
+    <title>Tman - Portfolio</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --accent: #38bdf8;
-        }
-
         body {
             margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: system-ui, -apple-system, sans-serif;
+            color: #f8fafc;
         }
 
         canvas {
@@ -27,63 +18,40 @@
             top: 0;
             left: 0;
             z-index: 0;
-            pointer-events: none;
         }
 
-        main {
+        .name-container {
             position: relative;
             z-index: 1;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-        }
-
-        section {
-            margin-bottom: 4rem;
-            padding: 2rem;
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 { font-size: 3rem; margin-bottom: 0.5rem; color: var(--accent); }
-        h2 { font-size: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
-        p { color: var(--text-secondary); line-height: 1.6; font-size: 1.1rem; }
-        
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .project-card {
-            background: rgba(15, 23, 42, 0.6);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s;
-        }
-        .project-card:hover { transform: translateY(-5px); }
-        .project-card h3 { margin-top: 0; color: var(--text-primary); }
-
-        .scroll-hint {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            opacity: 0.7;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             pointer-events: none;
-            animation: bounce 2s infinite;
+            text-align: center;
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateX(-50%) translateY(0); }
-            50% { transform: translateX(-50%) translateY(-10px); }
+        h1 {
+            font-size: 6rem;
+            margin: 0;
+            letter-spacing: -2px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 30px rgba(56, 189, 248, 0.3);
+        }
+
+        p {
+            font-size: 1.2rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
     </style>
 
@@ -96,234 +64,281 @@
     }
     </script>
 </head>
-
 <body>
-    <main>
-        <section id="hero">
-            <h1>Hi, I'm [Your Name]</h1>
-            <p>A creative developer building interactive web experiences. Scroll down or click around to play with the dice!</p>
-        </section>
 
-        <section id="about">
-            <h2>About Me</h2>
-            <p>I specialize in frontend development, 3D web graphics, and creating engaging user interfaces. When I'm not coding, you can find me exploring new technologies or playing board games (hence the dice).</p>
-        </section>
+    <div class="name-container">
+        <h1>Tman</h1>
+        <p>Scroll, Zoom, or Click to roll the D20</p>
+    </div>
 
-        <section id="projects">
-            <h2>Projects</h2>
-            <div class="project-grid">
-                <div class="project-card">
-                    <h3>Project Alpha</h3>
-                    <p>A full-stack web application built with React and Node.js.</p>
-                </div>
-                <div class="project-card">
-                    <h3>Project Beta</h3>
-                    <p>An interactive 3D data visualization dashboard.</p>
-                </div>
-            </div>
-        </section>
-        
-        <section id="contact">
-            <h2>Contact</h2>
-            <p>Reach out to me at <a href="mailto:hello@example.com" style="color: var(--accent);">hello@example.com</a></p>
-        </section>
-    </main>
-
-    <div class="scroll-hint">↓ Scroll to roll the dice ↓</div>
-
-    <!-- The 3D Physics Script -->
     <script type="module">
         import * as THREE from 'three';
         import * as CANNON from 'cannon-es';
 
-        // --- 1. THREE.JS SCENE SETUP ---
+        // 1. Scene Setup
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 5);
+        camera.position.set(0, 0, 8);
+        camera.lookAt(0, 0, 0);
 
         const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
-        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.prepend(renderer.domElement);
 
         // Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
         dirLight.position.set(5, 10, 7);
         dirLight.castShadow = true;
-        dirLight.shadow.mapSize.width = 1024;
-        dirLight.shadow.mapSize.height = 1024;
-        dirLight.shadow.camera.near = 0.5;
-        dirLight.shadow.camera.far = 50;
-        dirLight.shadow.camera.left = -10;
-        dirLight.shadow.camera.right = 10;
-        dirLight.shadow.camera.top = 10;
-        dirLight.shadow.camera.bottom = -10;
         scene.add(dirLight);
 
-        // Invisible shadow receiver plane
-        const shadowPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(50, 50),
-            new THREE.ShadowMaterial({ opacity: 0.4 })
-        );
-        shadowPlane.rotation.x = -Math.PI / 2;
-        shadowPlane.receiveShadow = true;
-        scene.add(shadowPlane);
+        // 2. D20 Visuals & Geometry
+        const diceGroup = new THREE.Group();
+        const icoGeo = new THREE.IcosahedronGeometry(1.2, 0);
+        const redMat = new THREE.MeshStandardMaterial({ 
+            color: 0xe63946,
+            flatShading: true,
+            roughness: 0.4,
+            metalness: 0.1
+        });
+        const diceMesh = new THREE.Mesh(icoGeo, redMat);
+        diceMesh.castShadow = true;
+        diceGroup.add(diceMesh);
 
-        // --- 2. CANNON-ES PHYSICS SETUP ---
+        // 3. D20 Physics Setup (FOOLPROOF EXTRACTION)
         const world = new CANNON.World();
         world.gravity.set(0, -9.82, 0);
-        world.broadphase = new CANNON.NaiveBroadphase();
-        world.solver.iterations = 10;
 
-        // Materials for friction and bouncing
-        const diceMaterial = new CANNON.Material('dice');
-        const floorMaterial = new CANNON.Material('floor');
-        world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial, floorMaterial, {
-            friction: 0.5,
-            restitution: 0.4
-        }));
+        const diceMat = new CANNON.Material('dice');
+        const wallMat = new CANNON.Material('wall');
+        world.addContactMaterial(new CANNON.ContactMaterial(diceMat, wallMat, { friction: 0.3, restitution: 0.5 }));
 
-        // Dice Physics Body
-        const diceShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
-        const diceBody = new CANNON.Body({ mass: 1, material: diceMaterial });
+        // Force non-indexed geometry to guarantee attributes exist
+        const safeGeo = icoGeo.toNonIndexed();
+        const posAttr = safeGeo.attributes.position;
+
+        const cannonVerts = [];
+        const cannonFaces = [];
+
+        for (let i = 0; i < posAttr.count; i++) {
+            cannonVerts.push(new CANNON.Vec3(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i)));
+        }
+        
+        for (let i = 0; i < posAttr.count; i += 3) {
+            cannonFaces.push([i, i + 1, i + 2]);
+        }
+
+        const diceShape = new CANNON.ConvexPolyhedron({
+            vertices: cannonVerts,
+            faces: cannonFaces
+        });
+
+        const diceBody = new CANNON.Body({ mass: 1, material: diceMat });
         diceBody.addShape(diceShape);
-        diceBody.position.set(0, 2, 0);
+        diceBody.position.set(0, 3, 3);
         world.addBody(diceBody);
 
-        // --- 3. CREATE THE DICE MESH & TEXTURES ---
-        function createDiceTexture(number) {
+        // 4. Attach Numbers to D20 Faces (100% INDEX-FREE)
+        function createNumberTexture(num) {
             const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 256;
+            canvas.width = 256;
+            canvas.height = 256;
             const ctx = canvas.getContext('2d');
             
-            // Rounded corners background
-            ctx.fillStyle = "#ffffff";
-            ctx.beginPath();
-            ctx.roundRect(10, 10, 236, 236, 30);
-            ctx.fill();
-
-            // Dots
-            ctx.fillStyle = "#0f172a";
-            const r = 22;
-            const positions = {
-                1: [[128, 128]],
-                2: [[64, 64], [192, 192]],
-                3: [[64, 64], [128, 128], [192, 192]],
-                4: [[64, 64], [192, 64], [64, 192], [192, 192]],
-                5: [[64, 64], [192, 64], [128, 128], [64, 192], [192, 192]],
-                6: [[64, 64], [192, 64], [64, 128], [192, 128], [64, 192], [192, 192]]
-            };
+            ctx.clearRect(0, 0, 256, 256);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 140px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             
-            positions[number].forEach(([x, y]) => {
+            if (num === 6 || num === 9) {
+                ctx.fillText(num.toString(), 128, 110);
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 10;
                 ctx.beginPath();
-                ctx.arc(x, y, r, 0, Math.PI * 2);
-                ctx.fill();
-            });
+                ctx.moveTo(70, 180);
+                ctx.lineTo(186, 180);
+                ctx.stroke();
+            } else {
+                ctx.fillText(num.toString(), 128, 128);
+            }
+            
             return new THREE.CanvasTexture(canvas);
         }
 
-        // Standard die layout: 1 opposite 6, 2 opposite 5, 3 opposite 4
-        // Three.js BoxGeometry order: +X, -X, +Y, -Y, +Z, -Z
-        const materials = [2, 5, 1, 6, 3, 4].map(num => 
-            new THREE.MeshStandardMaterial({ map: createDiceTexture(num) })
-        );
+        // Read directly from the safe, non-indexed position array
+        const safePosAttr = safeGeo.attributes.position;
 
-        const diceGeometry = new THREE.BoxGeometry(1, 1, 1);
-        // Slightly round the edges for better looks
-        const diceMesh = new THREE.Mesh(diceGeometry, materials);
-        diceMesh.castShadow = true;
-        diceMesh.receiveShadow = true;
-        scene.add(diceMesh);
+        for (let i = 0; i < 20; i++) {
+            // Every 3 vertices make one triangle face
+            const idxA = i * 3;
+            const idxB = i * 3 + 1;
+            const idxC = i * 3 + 2;
 
-        // --- 4. BOUNDARIES (WALLS) ---
-        let walls = [];
+            const vA = new THREE.Vector3().fromBufferAttribute(safePosAttr, idxA);
+            const vB = new THREE.Vector3().fromBufferAttribute(safePosAttr, idxB);
+            const vC = new THREE.Vector3().fromBufferAttribute(safePosAttr, idxC);
+
+            const center = new THREE.Vector3().addVectors(vA, vB).add(vC).divideScalar(3);
+            
+            const edge1 = new THREE.Vector3().subVectors(vB, vA);
+            const edge2 = new THREE.Vector3().subVectors(vC, vA);
+            const normal = new THREE.Vector3().crossVectors(edge1, edge2).normalize();
+
+            const textMat = new THREE.MeshBasicMaterial({ 
+                map: createNumberTexture(i + 1), 
+                transparent: true, 
+                depthWrite: false 
+            });
+            const planeGeo = new THREE.PlaneGeometry(0.55, 0.55);
+            const textMesh = new THREE.Mesh(planeGeo, textMat);
+            
+            textMesh.position.copy(center).add(normal.clone().multiplyScalar(0.015));
+            
+            const quat = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+            textMesh.quaternion.copy(quat);
+            
+            diceGroup.add(textMesh);
+        }
+
+        scene.add(diceGroup);
+
+        // 5. Invisible Walls
+        const walls = [];
+        const DICE_HALF_SIZE = 1.2; 
+        const WALL_PADDING = 0.5;   
+
         function setupWalls() {
             walls.forEach(w => world.removeBody(w));
-            walls = [];
-
+            walls.length = 0;
+            
             const vFOV = camera.fov * Math.PI / 180;
-            const dist = camera.position.z;
-            const height = 2 * Math.tan(vFOV / 2) * dist;
+            const height = 2 * Math.tan(vFOV / 2) * camera.position.z;
             const width = height * camera.aspect;
 
-            // Update shadow plane to match floor
-            shadowPlane.position.y = -height / 2;
+            const leftX   = -width/2  + DICE_HALF_SIZE + WALL_PADDING;
+            const rightX  =  width/2  - DICE_HALF_SIZE - WALL_PADDING;
+            const topY    =  height/2 - DICE_HALF_SIZE - WALL_PADDING;
+            const bottomY = -height/2 + DICE_HALF_SIZE + WALL_PADDING;
+            
+            const frontZ = 5; 
+            const backZ  = -5; 
 
-            const createWall = (x, y, z, rx, ry, rz) => {
-                const body = new CANNON.Body({ mass: 0, material: floorMaterial });
+            const addWall = (x, y, z, rx, ry, rz) => {
+                const body = new CANNON.Body({ mass: 0, material: wallMat });
                 body.addShape(new CANNON.Plane());
                 body.position.set(x, y, z);
-                body.quaternion.setFromEulerAngles(rx, ry, rz);
+                body.quaternion.setFromEuler(rx, ry, rz);
                 world.addBody(body);
                 walls.push(body);
             };
 
-            createWall(-width/2, 0, 0, 0, Math.PI/2, 0);   // Left
-            createWall(width/2, 0, 0, 0, -Math.PI/2, 0);   // Right
-            createWall(0, height/2, 0, Math.PI/2, 0, 0);   // Top
-            createWall(0, -height/2, 0, -Math.PI/2, 0, 0); // Bottom (Floor)
+            addWall(leftX,   0, 0, 0,  Math.PI/2, 0);  
+            addWall(rightX,  0, 0, 0, -Math.PI/2, 0);  
+            addWall(0, topY,    0,  Math.PI/2, 0, 0);  
+            addWall(0, bottomY, 0, -Math.PI/2, 0, 0);  
+            
+            addWall(0, 0, frontZ, 0, Math.PI, 0);       
+            addWall(0, 0, backZ,  0, 0, 0);
         }
         setupWalls();
 
-        // --- 5. INTERACTION (SCROLL & CLICK) ---
-        let lastScrollY = window.scrollY;
+        // 6. Interactions
+        let lastScroll = window.scrollY;
         
         window.addEventListener('scroll', () => {
-            const delta = window.scrollY - lastScrollY;
-            lastScrollY = window.scrollY;
-
-            if (Math.abs(delta) > 0) {
-                // Apply torque to make it roll forward/backward
-                diceBody.applyTorque(new CANNON.Vec3(delta * 8, 0, 0));
-                // Apply a little force to move it across the screen
-                diceBody.applyForce(new CANNON.Vec3(0, 0, -delta * 3), diceBody.position);
-                
-                // Wake up the body if it was sleeping
+            const delta = window.scrollY - lastScroll;
+            lastScroll = window.scrollY;
+            if (Math.abs(delta) > 10) {
+                diceBody.applyTorque(new CANNON.Vec3(delta * 1., delta * 1., 0));
+                diceBody.applyForce(new CANNON.Vec3(0, 0, -delta * 1), diceBody.position);
                 diceBody.wakeUp();
             }
         });
 
-        // Click to smack the dice
+        window.addEventListener('wheel', (e) => {
+            const force = e.deltaY * 0.5;
+            diceBody.applyImpulse(new CANNON.Vec3(
+                (Math.random() - 0.5) * 10,
+                Math.abs(force) * 0.3,
+                force * 0.5
+            ), diceBody.position);
+            diceBody.applyTorque(new CANNON.Vec3(force * 2, force, 0));
+            diceBody.wakeUp();
+        }, { passive: true });
+
         window.addEventListener('click', () => {
             diceBody.applyImpulse(new CANNON.Vec3(
-                (Math.random() - 0.5) * 15,
-                5,
-                (Math.random() - 0.5) * 15
+                (Math.random() - 0.5) * 20,
+                10,
+                (Math.random() - 0.5) * 20
             ), diceBody.position);
             diceBody.wakeUp();
         });
 
-        // --- 6. ANIMATION LOOP ---
-        const clock = new THREE.Clock();
+        let lastTouchDistance = 0;
+        window.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                lastTouchDistance = Math.sqrt(dx * dx + dy * dy);
+            }
+        }, { passive: true });
 
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                const dx = e.touches[0].clientX - e.touches[1].clientX;
+                const dy = e.touches[0].clientY - e.touches[1].clientY;
+                const currentDistance = Math.sqrt(dx * dx + dy * dy);
+                
+                if (lastTouchDistance > 0) {
+                    const zoomDelta = currentDistance - lastTouchDistance;
+                    if (Math.abs(zoomDelta) > 5) {
+                        diceBody.applyImpulse(new CANNON.Vec3(
+                            (Math.random() - 0.5) * 15,
+                            zoomDelta * 0.3,
+                            (Math.random() - 0.5) * 15
+                        ), diceBody.position);
+                        diceBody.applyTorque(new CANNON.Vec3(
+                            zoomDelta * 0.5,
+                            zoomDelta * 0.3,
+                            zoomDelta * 0.2
+                        ));
+                        diceBody.wakeUp();
+                    }
+                }
+                lastTouchDistance = currentDistance;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            lastTouchDistance = 0;
+        }, { passive: true });
+
+        // 7. Animation Loop
+        const clock = new THREE.Clock();
         function animate() {
             requestAnimationFrame(animate);
-            const delta = clock.getDelta();
+            const delta = Math.min(clock.getDelta(), 0.1);
 
-            // Add a tiny bit of "wind" so it never fully settles
             diceBody.applyForce(new CANNON.Vec3(
-                (Math.random() - 0.5) * 0.2, 
-                0, 
+                (Math.random() - 0.5) * 0.2,
+                0,
                 (Math.random() - 0.5) * 0.2
             ), diceBody.position);
 
-            // Step physics
-            world.step(1/60, delta, 3);
+            world.step(1 / 60, delta, 3);
 
-            // Sync Three.js mesh with Physics body
-            diceMesh.position.copy(diceBody.position);
-            diceMesh.quaternion.copy(diceBody.quaternion);
+            diceGroup.position.copy(diceBody.position);
+            diceGroup.quaternion.copy(diceBody.quaternion);
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // --- 7. RESIZE HANDLER ---
+        // 8. Resize Handler
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
