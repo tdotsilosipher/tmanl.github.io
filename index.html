@@ -1,17 +1,335 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Truman Leung Website</title>
-    <link rel="stylesheet" href="./style.css">
-    <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  </head>
-  <body>
+    <title>My Portfolio</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            overflow-x: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        main {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            padding: 2rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 { font-size: 3rem; margin-bottom: 0.5rem; color: var(--accent); }
+        h2 { font-size: 2rem; margin-bottom: 1rem; border-bottom: 2px solid var(--accent); display: inline-block; padding-bottom: 4px;}
+        p { color: var(--text-secondary); line-height: 1.6; font-size: 1.1rem; }
+        
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .project-card {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+        }
+        .project-card:hover { transform: translateY(-5px); }
+        .project-card h3 { margin-top: 0; color: var(--text-primary); }
+
+        .scroll-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            opacity: 0.7;
+            pointer-events: none;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+    </style>
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "cannon-es": "https://unpkg.com/cannon-es@0.20.0/dist/cannon-es.js"
+        }
+    }
+    </script>
+</head>
+<body>
+    //content
     <main>
-        <h1>Website Test</h1>  
+        <section id="hero">
+            <h1>Hi, I'm [Your Name]</h1>
+            <p>A creative developer building interactive web experiences. Scroll down or click around to play with the dice!</p>
+        </section>
+
+        <section id="about">
+            <h2>About Me</h2>
+            <p>I specialize in frontend development, 3D web graphics, and creating engaging user interfaces. When I'm not coding, you can find me exploring new technologies or playing board games (hence the dice).</p>
+        </section>
+
+        <section id="projects">
+            <h2>Projects</h2>
+            <div class="project-grid">
+                <div class="project-card">
+                    <h3>Project Alpha</h3>
+                    <p>A full-stack web application built with React and Node.js.</p>
+                </div>
+                <div class="project-card">
+                    <h3>Project Beta</h3>
+                    <p>An interactive 3D data visualization dashboard.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact">
+            <h2>Contact</h2>
+            <p>Reach out to me at <a href="mailto:hello@example.com" style="color: var(--accent);">hello@example.com</a></p>
+        </section>
     </main>
-    <script src="script.js"></script>
-  </body>
+
+    <div class="scroll-hint">↓ Scroll to roll the dice ↓</div>
+
+    <!-- The 3D Physics Script -->
+    <script type="module">
+        import * as THREE from 'three';
+        import * as CANNON from 'cannon-es';
+
+        // --- 1. THREE.JS SCENE SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 0, 5);
+
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.prepend(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 10, 7);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 1024;
+        dirLight.shadow.mapSize.height = 1024;
+        dirLight.shadow.camera.near = 0.5;
+        dirLight.shadow.camera.far = 50;
+        dirLight.shadow.camera.left = -10;
+        dirLight.shadow.camera.right = 10;
+        dirLight.shadow.camera.top = 10;
+        dirLight.shadow.camera.bottom = -10;
+        scene.add(dirLight);
+
+        // Invisible shadow receiver plane
+        const shadowPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(50, 50),
+            new THREE.ShadowMaterial({ opacity: 0.4 })
+        );
+        shadowPlane.rotation.x = -Math.PI / 2;
+        shadowPlane.receiveShadow = true;
+        scene.add(shadowPlane);
+
+        // --- 2. CANNON-ES PHYSICS SETUP ---
+        const world = new CANNON.World();
+        world.gravity.set(0, -9.82, 0);
+        world.broadphase = new CANNON.NaiveBroadphase();
+        world.solver.iterations = 10;
+
+        // Materials for friction and bouncing
+        const diceMaterial = new CANNON.Material('dice');
+        const floorMaterial = new CANNON.Material('floor');
+        world.addContactMaterial(new CANNON.ContactMaterial(diceMaterial, floorMaterial, {
+            friction: 0.5,
+            restitution: 0.4
+        }));
+
+        // Dice Physics Body
+        const diceShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5));
+        const diceBody = new CANNON.Body({ mass: 1, material: diceMaterial });
+        diceBody.addShape(diceShape);
+        diceBody.position.set(0, 2, 0);
+        world.addBody(diceBody);
+
+        // --- 3. CREATE THE DICE MESH & TEXTURES ---
+        function createDiceTexture(number) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            
+            // Rounded corners background
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.roundRect(10, 10, 236, 236, 30);
+            ctx.fill();
+
+            // Dots
+            ctx.fillStyle = "#0f172a";
+            const r = 22;
+            const positions = {
+                1: [[128, 128]],
+                2: [[64, 64], [192, 192]],
+                3: [[64, 64], [128, 128], [192, 192]],
+                4: [[64, 64], [192, 64], [64, 192], [192, 192]],
+                5: [[64, 64], [192, 64], [128, 128], [64, 192], [192, 192]],
+                6: [[64, 64], [192, 64], [64, 128], [192, 128], [64, 192], [192, 192]]
+            };
+            
+            positions[number].forEach(([x, y]) => {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // Standard die layout: 1 opposite 6, 2 opposite 5, 3 opposite 4
+        // Three.js BoxGeometry order: +X, -X, +Y, -Y, +Z, -Z
+        const materials = [2, 5, 1, 6, 3, 4].map(num => 
+            new THREE.MeshStandardMaterial({ map: createDiceTexture(num) })
+        );
+
+        const diceGeometry = new THREE.BoxGeometry(1, 1, 1);
+        // Slightly round the edges for better looks
+        const diceMesh = new THREE.Mesh(diceGeometry, materials);
+        diceMesh.castShadow = true;
+        diceMesh.receiveShadow = true;
+        scene.add(diceMesh);
+
+        // --- 4. BOUNDARIES (WALLS) ---
+        let walls = [];
+        function setupWalls() {
+            walls.forEach(w => world.removeBody(w));
+            walls = [];
+
+            const vFOV = camera.fov * Math.PI / 180;
+            const dist = camera.position.z;
+            const height = 2 * Math.tan(vFOV / 2) * dist;
+            const width = height * camera.aspect;
+
+            // Update shadow plane to match floor
+            shadowPlane.position.y = -height / 2;
+
+            const createWall = (x, y, z, rx, ry, rz) => {
+                const body = new CANNON.Body({ mass: 0, material: floorMaterial });
+                body.addShape(new CANNON.Plane());
+                body.position.set(x, y, z);
+                body.quaternion.setFromEulerAngles(rx, ry, rz);
+                world.addBody(body);
+                walls.push(body);
+            };
+
+            createWall(-width/2, 0, 0, 0, Math.PI/2, 0);   // Left
+            createWall(width/2, 0, 0, 0, -Math.PI/2, 0);   // Right
+            createWall(0, height/2, 0, Math.PI/2, 0, 0);   // Top
+            createWall(0, -height/2, 0, -Math.PI/2, 0, 0); // Bottom (Floor)
+        }
+        setupWalls();
+
+        // --- 5. INTERACTION (SCROLL & CLICK) ---
+        let lastScrollY = window.scrollY;
+        
+        window.addEventListener('scroll', () => {
+            const delta = window.scrollY - lastScrollY;
+            lastScrollY = window.scrollY;
+
+            if (Math.abs(delta) > 0) {
+                // Apply torque to make it roll forward/backward
+                diceBody.applyTorque(new CANNON.Vec3(delta * 8, 0, 0));
+                // Apply a little force to move it across the screen
+                diceBody.applyForce(new CANNON.Vec3(0, 0, -delta * 3), diceBody.position);
+                
+                // Wake up the body if it was sleeping
+                diceBody.wakeUp();
+            }
+        });
+
+        // Click to smack the dice
+        window.addEventListener('click', () => {
+            diceBody.applyImpulse(new CANNON.Vec3(
+                (Math.random() - 0.5) * 15,
+                5,
+                (Math.random() - 0.5) * 15
+            ), diceBody.position);
+            diceBody.wakeUp();
+        });
+
+        // --- 6. ANIMATION LOOP ---
+        const clock = new THREE.Clock();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+
+            // Add a tiny bit of "wind" so it never fully settles
+            diceBody.applyForce(new CANNON.Vec3(
+                (Math.random() - 0.5) * 0.2, 
+                0, 
+                (Math.random() - 0.5) * 0.2
+            ), diceBody.position);
+
+            // Step physics
+            world.step(1/60, delta, 3);
+
+            // Sync Three.js mesh with Physics body
+            diceMesh.position.copy(diceBody.position);
+            diceMesh.quaternion.copy(diceBody.quaternion);
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // --- 7. RESIZE HANDLER ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            setupWalls();
+        });
+    </script>
+</body>
 </html>
